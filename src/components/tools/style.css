@@ -1,0 +1,188 @@
+/* Import Google font - Poppins */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+.tools-board {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 15px 22px 0;
+}
+
+.tools-board .row {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.row .title {
+    color: #333;
+    font-size: 1rem;
+}
+
+.row .options {
+    list-style: none;
+    margin: 10px 0 0 0;
+}
+
+.row .options .option {
+    display: flex;
+    user-select: none;
+    cursor: pointer;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.row .options .option .icon {
+    font-size: 1.3rem;
+    padding-left: 3px;
+}
+
+.row .options .option .name {
+    padding-left: 8px;
+}
+
+.option :where(i, span, label) {
+    color: #5a6168;
+    cursor: pointer;
+}
+
+.option:is(:hover, .active) :where(i, span, label) {
+    color: #4a98f7;
+}
+
+.option input[type="checkbox"] {
+    height: 15px;
+    width: 15px;
+    margin: 0 10px 0 5px;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked ~ label {
+    color: #4a98f7;
+}
+
+.option #brush-size-slider {
+    width: 100%;
+    height: 5px;
+    margin-top: 10px;
+}
+
+.tools-board .colors-tool {
+    margin-top: 25px;
+}
+
+.tools-board .colors {
+    display: flex;
+    justify-content: space-between;
+}
+
+.colors .option {
+    position: relative;
+    height: 20px;
+    width: 20px;
+    margin-top: 3px;
+    border-radius: 50%;
+}
+
+.colors .option:nth-child(1) {
+    background-color: #fff;
+    border: 1px solid #bfbfbf;
+}
+
+.colors .option:nth-child(2) {
+    background-color: #000;
+}
+
+.colors .option:nth-child(3) {
+    background-color: #e02020;
+}
+
+.colors .option:nth-child(4) {
+    background-color: #6dd400;
+}
+
+.colors .option:nth-child(5) {
+    background-color: #f34f4f;
+    background-image: linear-gradient(#3c3cff, #f34f4f);
+}
+
+.colors .option.active:nth-child(5) {
+    background-image: none;
+}
+
+.colors .option.selected:before {
+    content: "";
+    top: 50%;
+    left: 50%;
+    height: 12px;
+    width: 12px;
+    background: inherit;
+    position: absolute;
+    border: 2px solid #fff;
+    border-radius: inherit;
+    transform: translate(-50%, -50%);
+}
+
+.colors .option:first-child.selected:before {
+    border-color: #ccc;
+}
+
+.colors #color-picker {
+    opacity: 0;
+    cursor: pointer;
+}
+
+.buttons .title {
+    display: none;
+}
+
+.buttons button {
+    width: 100%;
+    color: #fff;
+    border: none;
+    outline: none;
+    padding: 11px 0;
+    font-size: 0.9rem;
+    background: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 13px;
+    transition: all 0.3s ease;
+}
+
+.buttons button .icon {
+    color: #fff;
+    font-size: 1.2rem;
+    transition: 0.2s ease;
+}
+
+.buttons .clear-canvas {
+    color: #6c757d;
+    border: 1px solid #6c757d;
+}
+
+.buttons .clear-canvas .icon {
+    color: #6c757d;
+}
+
+.buttons .clear-canvas:hover {
+    color: #fff;
+    background: #6c757d;
+}
+
+.buttons .clear-canvas:hover .icon {
+    color: #fff;
+}
+
+.buttons .save-img {
+    background: #4a98f7;
+    border: 1px solid #4a98f7;
+}
+
+.buttons .save-img:hover {
+    background: #2382f6;
+}

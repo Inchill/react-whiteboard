@@ -64,11 +64,11 @@ const Tools = () => {
                         <label className="title">操作</label>
                         <ul className="options">
                             <li className="option" id="undo">
-                                {/* <span className="icon material-symbols-rounded">undo</span> */}
+                                <i className="bi bi-arrow-counterclockwise"></i>
                                 <span className="name">撤销</span>
                             </li>
                             <li className="option" id="redo">
-                                {/* <span className="icon material-symbols-rounded">redo</span> */}
+                                <i className="bi bi-arrow-clockwise"></i>
                                 <span className="name">恢复</span>
                             </li>
                         </ul>

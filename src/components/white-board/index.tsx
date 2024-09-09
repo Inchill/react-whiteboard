@@ -4,8 +4,10 @@ import Tools from "../tools";
 
 const WhiteBoard = () => {
     return (
-        <div className="container">
-            <Tools />
+        <div className="white-board">
+            <section className="tools-board">
+                <Tools />
+            </section>
             <section className="drawing-board">
                 <canvas></canvas>
             </section>

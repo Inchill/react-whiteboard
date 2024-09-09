@@ -4,7 +4,7 @@ import './style.css'
 
 const Tools = () => {
     return (
-        <section className="tools-board">
+        <>
             <div className="all-tools shapes-tool">
                 <div className="row">
                     <label className="title">形状</label>
@@ -85,7 +85,7 @@ const Tools = () => {
                     <span className="name">保存为图片</span>
                 </button>
             </div>
-        </section>
+        </>
     )
 }
 

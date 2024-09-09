@@ -1,15 +1,4 @@
-/* Import Google font - Poppins */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
-
-.tools-board {
-    width: 220px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 15px 22px 0;
-}
-
-.tools-board .row {
+.row {
     margin-bottom: 20px;
     width: 100%;
 }
@@ -67,11 +56,11 @@ input[type="checkbox"]:checked ~ label {
     margin-top: 10px;
 }
 
-.tools-board .colors-tool {
+.colors-tool {
     margin-top: 25px;
 }
 
-.tools-board .colors {
+.colors {
     display: flex;
     justify-content: space-between;
 }

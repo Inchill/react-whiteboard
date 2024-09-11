@@ -1,30 +1,29 @@
 import React, { useRef } from 'react';
+import { TOOLS } from './config';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './style.css'
 
 const Tools = () => {
+    const toolRefs = useRef<(HTMLLIElement | null)[]>([]);
+
     return (
         <>
             <div className="all-tools shapes-tool">
                 <div className="row">
                     <label className="title">形状</label>
                     <ul className="options">
-                        <li className="option tool" id="line">
-                            <i className="bi bi-slash-lg"></i>
-                            <span className="name">直线</span>
-                        </li>
-                        <li className="option tool" id="rect">
-                            <i className="bi bi-square"></i>
-                            <span className="name">矩形</span>
-                        </li>
-                        <li className="option tool" id="circle">
-                            <i className="bi bi-circle"></i>
-                            <span className="name">圆形</span>
-                        </li>
-                        <li className="option tool" id="triangle">
-                            <i className="bi bi-triangle"></i>
-                            <span className="name">三角形</span>
-                        </li>
+                        {
+                            TOOLS.map((tool, index) => (
+                                <li
+                                    className="option tool"
+                                    key={index} id={tool.value}
+                                    ref={(el) => (toolRefs.current[index] = el)}
+                                >
+                                    <i className={tool.iconClass}></i>
+                                    <span className="name">{tool.name}</span>
+                                </li>
+                            ))
+                        }
                         <li className="option">
                             <input type="checkbox" id="fill-color" />
                             <label htmlFor="fill-color">填充色</label>

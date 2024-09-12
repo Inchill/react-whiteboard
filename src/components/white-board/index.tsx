@@ -4,7 +4,20 @@ import Tools from "../tools";
 
 const WhiteBoard = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const ctx = canvasRef.current?.getContext('2d');
+
+    useEffect(() => {
+        const initCanvas = () => {
+            const ctx = canvasRef.current?.getContext('2d');
+            if (canvasRef.current === null || !ctx) return;
+            console.log(canvasRef.current);
+            const dpr = window.devicePixelRatio || 1;
+            const canvasRect = canvasRef.current?.getBoundingClientRect();
+            canvasRef.current.width = canvasRect.width * dpr;
+            canvasRef.current.height = canvasRect.height * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        initCanvas();
+    }, []);
 
     return (
         <div className="white-board">

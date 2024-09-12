@@ -25,7 +25,7 @@ const Tools = () => {
                             ))
                         }
                         <li className="option">
-                            <input type="checkbox" id="fill-color" />
+                            <input type="checkbox" id="fill-color" defaultChecked={false} />
                             <label htmlFor="fill-color">填充色</label>
                         </li>
                     </ul>
@@ -42,7 +42,7 @@ const Tools = () => {
                             <span className="name">橡皮擦</span>
                         </li>
                         <li className="option">
-                            <input type="range" id="brush-size-slider" min="1" max="100" value="5" />
+                            <input type="range" id="brush-size-slider" min="1" max="100" value="5" defaultValue={'10'} />
                         </li>
                     </ul>
                 </div>
@@ -55,7 +55,7 @@ const Tools = () => {
                             <li className="option"></li>
                             <li className="option"></li>
                             <li className="option">
-                                <input type="color" id="color-picker" />
+                                <input type="color" id="color-picker" defaultValue="#000000" />
                             </li>
                         </ul>
                     </div>

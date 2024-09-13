@@ -21,23 +21,37 @@ const WhiteBoard = () => {
     }, []);
 
     const initCanvas = () => {
-        const ctx = canvasRef.current?.getContext('2d');
-        if (canvasRef.current === null || !ctx) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (canvas === null || !ctx) return;
         const dpr = window.devicePixelRatio || 1;
-        const canvasRect = canvasRef.current?.getBoundingClientRect();
-        canvasRef.current.width = canvasRect.width * dpr;
-        canvasRef.current.height = canvasRect.height * dpr;
+        const canvasRect = canvas?.getBoundingClientRect();
+        canvas.width = canvasRect.width * dpr;
+        canvas.height = canvasRect.height * dpr;
         ctx.scale(dpr, dpr);
     }
 
     // Reset Canvas
     const resetCanvas = () => {
         initCanvas();
-        const ctx = canvasRef.current?.getContext('2d');
-        if (canvasRef.current === null || !ctx) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (canvas === null || !ctx) return;
         ctx.fillStyle = "#fff";
-        ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        drawingHistory.push(localStorage.getItem("savedDrawing") || canvasRef.current.toDataURL());
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawingHistory.push(localStorage.getItem("savedDrawing") || canvas.toDataURL());
+    };
+
+    const getImageSize = (image: HTMLImageElement) => {
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (canvas === null || !ctx) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const canvasRect = canvas.getBoundingClientRect();
+        const aspectRatio = image.width / image.height;
+        const newWidth = canvasRect.width;
+        const newHeight = newWidth / aspectRatio;
+        return { newWidth, newHeight };
     };
 
     return (

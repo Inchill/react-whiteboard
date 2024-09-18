@@ -54,6 +54,25 @@ const WhiteBoard = () => {
         return { newWidth, newHeight };
     };
 
+    const loadLocalstorageDrawing = () => {
+        const savedDrawing = localStorage.getItem("savedDrawing");
+        if (!savedDrawing) return;
+
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (canvas === null || !ctx) return;
+    
+        const image = new Image();
+        image.src = savedDrawing;
+        image.onload = () => {
+            const size = getImageSize(image);
+            if (size) {
+                const { newWidth, newHeight } = size;
+                ctx.drawImage(image, 0, 0, newWidth, newHeight);
+            }
+        }
+    }
+
     return (
         <div className="white-board">
             <section className="tools-board">

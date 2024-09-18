@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import './style.css';
 import Tools from "../tools";
 
 // Drawing state
-let drawingHistory = [];
+let drawingHistory: string[] = [];
 let redoHistory = [];
 let currentStep = 0;
 let isDrawing = false;
@@ -73,11 +73,23 @@ const WhiteBoard = () => {
         }
     }
 
-    // Save drawing to localStorage
+    // 保存白板绘画信息
     const saveDrawingToLocalstorage = () => {
         const canvas = canvasRef.current;
         const canvasDrawing = canvas!.toDataURL();
         localStorage.setItem("savedDrawing", canvasDrawing);
+    }
+
+    // 保存每一步的数据
+    const saveDrawingState = () => {
+        const canvas = canvasRef.current;
+        if (currentStep < drawingHistory.length - 1) {
+            drawingHistory = drawingHistory.slice(0, currentStep + 1);
+        }
+        currentStep++;
+        drawingHistory.push(canvas!.toDataURL());
+        redoHistory = [];
+        saveDrawingToLocalstorage();
     }
 
     return (

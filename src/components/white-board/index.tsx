@@ -73,6 +73,13 @@ const WhiteBoard = () => {
         }
     }
 
+    // Save drawing to localStorage
+    const saveDrawingToLocalstorage = () => {
+        const canvas = canvasRef.current;
+        const canvasDrawing = canvas!.toDataURL();
+        localStorage.setItem("savedDrawing", canvasDrawing);
+    }
+
     return (
         <div className="white-board">
             <section className="tools-board">

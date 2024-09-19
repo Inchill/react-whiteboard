@@ -123,6 +123,27 @@ const WhiteBoard = () => {
         }
     }
 
+    // 获取当前鼠标/触摸点位置坐标
+    const currentMousePoint = (e: TouchEvent | MouseEvent) => {
+        const canvas = canvasRef.current;
+        let x: number, y: number;
+    
+        // 判断是否是 TouchEvent
+        if (e instanceof TouchEvent) {
+            x = e.touches[0].pageX - canvas!.offsetLeft;
+            y = e.touches[0].pageY - canvas!.offsetTop;
+        } 
+        // 否则认为是 MouseEvent
+        else if (e instanceof MouseEvent) {
+            x = e.pageX - canvas!.offsetLeft;
+            y = e.pageY - canvas!.offsetTop;
+        } else {
+            return { x: 0, y: 0 }; // 如果都不是，返回默认值
+        }
+    
+        return { x, y };
+    }
+
     return (
         <div className="white-board">
             <section className="tools-board">

@@ -4,7 +4,7 @@ import Tools from "../tools";
 
 // Drawing state
 let drawingHistory: string[] = [];
-let redoHistory = [];
+let redoHistory: string[] = [];
 let currentStep = 0;
 let isDrawing = false;
 let brushSize = 5;
@@ -90,6 +90,37 @@ const WhiteBoard = () => {
         drawingHistory.push(canvas!.toDataURL());
         redoHistory = [];
         saveDrawingToLocalstorage();
+    }
+
+    // 处理撤销和恢复
+    const handleUndoRedo = (selectedBtn: HTMLLIElement) => {
+        if (selectedBtn.id === "undo" && currentStep > 0) {
+            currentStep--;
+            redoHistory.push(drawingHistory[currentStep + 1]);
+        } else if (selectedBtn.id === "redo" && redoHistory.length > 0) {
+            currentStep++;
+            const redoItem = redoHistory.pop();
+            if (redoItem) {
+                drawingHistory.push(redoItem);
+            }
+        } else {
+            return;
+        }
+
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext('2d');
+        if (canvas === null || !ctx) return;
+    
+        const image = new Image();
+        image.src = drawingHistory[currentStep];
+        image.onload = () => {
+            const size = getImageSize(image);
+            if (size) {
+                const { newWidth, newHeight } = size;
+                ctx.drawImage(image, 0, 0, newWidth, newHeight);
+                saveDrawingToLocalstorage();
+            }
+        }
     }
 
     return (

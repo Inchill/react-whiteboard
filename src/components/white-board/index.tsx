@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import './style.css';
 import Tools from "../tools";
 
@@ -12,6 +12,11 @@ let selectedColor = "#000";
 let selectedTool = "brush";
 let prevMousePoint = { x: 0, y: 0 };
 let canvasSnapshot = null;
+
+type Position = {
+    x: number;
+    y: number;
+}
 
 const WhiteBoard = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -142,6 +147,16 @@ const WhiteBoard = () => {
         }
     
         return { x, y };
+    }
+
+    // 画线
+    const drawLine = (position: Position) => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.beginPath();
+        ctx.moveTo(prevMousePoint.x, prevMousePoint.y);
+        ctx.lineTo(position.x, position.y);
+        ctx.stroke();
     }
 
     return (

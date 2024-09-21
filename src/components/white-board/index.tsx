@@ -159,6 +159,21 @@ const WhiteBoard = () => {
         ctx.stroke();
     }
 
+    // 绘制矩形
+    const drawRectangle = (position: Position) => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.beginPath();
+        const width = position.x - prevMousePoint.x;
+        const height = position.y - prevMousePoint.y;
+      
+        ctx.rect(prevMousePoint.x, prevMousePoint.y, width, height);
+      
+        const fillColorCheckbox = document.querySelector("#fill-color") as HTMLInputElement;
+        fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
+        ctx.closePath();
+    }
+
     return (
         <div className="white-board">
             <section className="tools-board">

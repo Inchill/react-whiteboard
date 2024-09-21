@@ -11,7 +11,7 @@ let brushSize = 5;
 let selectedColor = "#000";
 let selectedTool = "brush";
 let prevMousePoint = { x: 0, y: 0 };
-let canvasSnapshot = null;
+let canvasSnapshot: ImageData;
 
 type Position = {
     x: number;
@@ -20,6 +20,7 @@ type Position = {
 
 const WhiteBoard = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const fillColorCheckbox = document.querySelector("#fill-color") as HTMLInputElement;
 
     useEffect(() => {
         initCanvas();
@@ -168,10 +169,79 @@ const WhiteBoard = () => {
         const height = position.y - prevMousePoint.y;
       
         ctx.rect(prevMousePoint.x, prevMousePoint.y, width, height);
-      
-        const fillColorCheckbox = document.querySelector("#fill-color") as HTMLInputElement;
+
         fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
         ctx.closePath();
+    }
+
+    // 绘制圆形
+    const drawCircle = (position: Position) => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.beginPath();
+        let radius = Math.sqrt(Math.pow((prevMousePoint.x - position.x), 2) + Math.pow((prevMousePoint.y - position.y), 2));
+        ctx.arc(prevMousePoint.x, prevMousePoint.y, radius, 0, 2 * Math.PI);
+        fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
+    }
+
+    // 绘制三角形
+    const drawTriangle = (position: Position) => {
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.beginPath();
+        ctx.moveTo(prevMousePoint.x, prevMousePoint.y);
+        ctx.lineTo(position.x, position.y);
+        ctx.lineTo(prevMousePoint.x * 2 - position.x, position.y);
+        ctx.closePath();
+        fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
+    }
+
+    // 开始绘制
+    const drawStart = (e: TouchEvent | MouseEvent) => {
+        e.preventDefault();
+        isDrawing = true;
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.beginPath();
+        ctx.lineCap = "round";
+        prevMousePoint = currentMousePoint(e);
+        ctx.lineWidth = brushSize;
+        ctx.strokeStyle = selectedColor;
+        ctx.fillStyle = selectedColor;
+        canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    }
+
+    // 绘制中
+    const drawing = (e: TouchEvent | MouseEvent) => {
+        if (!isDrawing) return;
+        e.preventDefault();
+        let position = currentMousePoint(e);
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.putImageData(canvasSnapshot, 0, 0);
+      
+        if (selectedTool === "brush" || selectedTool === "eraser") {
+          ctx.strokeStyle = selectedTool === "eraser" ? "#fff" : selectedColor;
+          ctx.lineTo(position.x, position.y);
+          ctx.stroke();
+        } else if (selectedTool === "line") {
+          drawLine(position);
+        } else if (selectedTool === "rect") {
+          drawRectangle(position);
+        } else if (selectedTool === "circle") {
+          drawCircle(position);
+        } else {
+          drawTriangle(position);
+        }
+        ctx.stroke();
+    }
+
+    // 绘制中
+    const drawStop = () => {
+        if (!isDrawing) return;
+        isDrawing = false;
+        saveDrawingState();
     }
 
     return (

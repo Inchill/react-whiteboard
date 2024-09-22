@@ -18,7 +18,8 @@ export default [
       'semi': ['error', 'always'],
       'no-console': 'warn',
       '@typescript-eslint/no-unused-expressions': 'off',
-      'eol-last': ['error', 'always']
+      'eol-last': ['error', 'always'],
+      'indent': ['error', 4]
     }
   }
 ];

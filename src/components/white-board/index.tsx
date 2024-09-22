@@ -9,8 +9,8 @@ let drawingHistory: string[] = [];
 let redoHistory: string[] = [];
 let currentStep = 0;
 let isDrawing = false;
-const brushSize = 5;
-const selectedColor = '#000';
+let brushSize = 5;
+let selectedColor = '#000';
 let selectedTool: Tool = 'brush';
 let prevMousePoint = { x: 0, y: 0 };
 let canvasSnapshot: ImageData;
@@ -31,6 +31,15 @@ const WhiteBoard = () => {
 
     useEffect(() => {
         bindToolsEvent();
+        bindBrushSizeSliderEvent();
+        bindColorButtonsEvent();
+        bindColorPickerEvent();
+        bindUndoRedoEvent();
+        bindSaveDrawingEvent();
+        bindClearCanvasEvent();
+        resetCanvas();
+        loadLocalstorageDrawing();
+        bindCanvasEvent();
     }, []);
 
     const initCanvas = () => {
@@ -261,8 +270,89 @@ const WhiteBoard = () => {
                 activeTool!.classList.remove('active');
                 tool.classList.add('active');
                 selectedTool = tool.id as Tool;
-              });
+            });
         });
+    };
+
+    const bindBrushSizeSliderEvent = () => {
+        const brushSizeSlider = document.querySelector('#brush-size-slider') as HTMLInputElement;
+        brushSizeSlider.addEventListener('change', (e) => {
+            e.preventDefault();
+            brushSize = +brushSizeSlider.value;
+        });
+    };
+
+    const bindColorButtonsEvent = () => {
+        const colorButtons = document.querySelectorAll('.colors .option');
+        colorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const activeButton = document.querySelector('.colors .selected');
+                activeButton!.classList.remove('selected');
+                button.classList.add('selected');
+                selectedColor = window.getComputedStyle(button).getPropertyValue('background-color');
+            });
+        });
+    };
+
+    const bindColorPickerEvent = () => {
+        const colorPicker = document.querySelector('#color-picker') as HTMLInputElement;
+        colorPicker.addEventListener('input', (e: Event) => {
+            colorPicker.parentElement!.classList.add('active');
+            const target = e.target as HTMLInputElement;
+            colorPicker.parentElement!.style.backgroundColor = target.value;
+            colorPicker.parentElement!.click();
+        });
+    };
+
+    const bindUndoRedoEvent = () => {
+        const undoRedoButtons = document.querySelectorAll('.actions-tool li');
+        undoRedoButtons.forEach(button => {
+            const liButton = button as HTMLLIElement;
+            button.addEventListener('click', () => handleUndoRedo(liButton));
+        });
+    };
+
+    const bindSaveDrawingEvent = () => {
+        const saveImgBtn = document.querySelector('.save-img') as HTMLButtonElement;
+        saveImgBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `${new Date().getTime()}.jpg`;
+            const canvas = canvasRef.current as HTMLCanvasElement;
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    };
+
+    const resetDrawingState = () => {
+        localStorage.removeItem('savedDrawing');
+        drawingHistory = [];
+        redoHistory = [];
+        currentStep = 0;
+        resetCanvas();
+    };
+
+    const bindClearCanvasEvent = () => {
+        const clearCanvasBtn = document.querySelector('.clear-canvas') as HTMLButtonElement;
+        clearCanvasBtn.addEventListener('click', () => {
+            if (window.confirm('Are you sure you want to clear the canvas?')) resetDrawingState();
+        });
+    };
+
+    const bindCanvasEvent = () => {
+        window.addEventListener('orientationchange', resetDrawingState);
+        window.addEventListener('resize', resetCanvas);
+
+        const canvas = canvasRef.current as HTMLCanvasElement;
+        
+        canvas.addEventListener('mousedown', drawStart);
+        canvas.addEventListener('touchstart', drawStart);
+        
+        canvas.addEventListener('mousemove', drawing);
+        canvas.addEventListener('touchmove', drawing);
+        
+        canvas.addEventListener('mouseup', drawStop);
+        canvas.addEventListener('mouseleave', drawStop);
+        canvas.addEventListener('touchend', drawStop);
     };
 
     return (

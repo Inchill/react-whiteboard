@@ -19,4 +19,4 @@ export const TOOLS = [
         value: 'tringle',
         iconClass: 'bi bi-triangle'
     }
-]
+];

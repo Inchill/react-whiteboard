@@ -1,10 +1,14 @@
-import React, { useRef } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { TOOLS } from './config';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import './style.css'
+import './style.css';
 
-const Tools = () => {
+const Tools = forwardRef((props, ref) => {
     const toolRefs = useRef<(HTMLLIElement | null)[]>([]);
+
+    useImperativeHandle(ref, () => ({
+        toolOptions: toolRefs.current
+    }));
 
     return (
         <>
@@ -42,7 +46,7 @@ const Tools = () => {
                             <span className="name">橡皮擦</span>
                         </li>
                         <li className="option">
-                            <input type="range" id="brush-size-slider" min="1" max="100" value="5" defaultValue={'10'} />
+                            <input type="range" id="brush-size-slider" min="1" max="100" defaultValue={'10'} />
                         </li>
                     </ul>
                 </div>
@@ -85,7 +89,9 @@ const Tools = () => {
                 </button>
             </div>
         </>
-    )
-}
+    );
+});
+
+Tools.displayName = 'Tools';
 
 export default Tools;

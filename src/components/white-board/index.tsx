@@ -26,7 +26,6 @@ type ToolsRef = {
 
 const WhiteBoard = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const fillColorCheckbox = document.querySelector('#fill-color') as HTMLInputElement;
     const toolsRef = useRef<ToolsRef>(null);
 
     useEffect(() => {
@@ -186,6 +185,7 @@ const WhiteBoard = () => {
 
         ctx.rect(prevMousePoint.x, prevMousePoint.y, width, height);
 
+        const fillColorCheckbox = document.querySelector('#fill-color') as HTMLInputElement;
         fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
         ctx.closePath();
     };
@@ -197,6 +197,7 @@ const WhiteBoard = () => {
         ctx.beginPath();
         const radius = Math.sqrt(Math.pow((prevMousePoint.x - position.x), 2) + Math.pow((prevMousePoint.y - position.y), 2));
         ctx.arc(prevMousePoint.x, prevMousePoint.y, radius, 0, 2 * Math.PI);
+        const fillColorCheckbox = document.querySelector('#fill-color') as HTMLInputElement;
         fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
     };
 
@@ -209,6 +210,7 @@ const WhiteBoard = () => {
         ctx.lineTo(position.x, position.y);
         ctx.lineTo(prevMousePoint.x * 2 - position.x, position.y);
         ctx.closePath();
+        const fillColorCheckbox = document.querySelector('#fill-color') as HTMLInputElement;
         fillColorCheckbox.checked ? ctx.fill() : ctx.stroke();
     };
 

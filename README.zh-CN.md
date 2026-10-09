@@ -9,7 +9,10 @@
 
 [在线演示](https://inchill.github.io/react-whiteboard/) · [打开完整白板](https://inchill.github.io/react-whiteboard/board/) · [English](./README.md)
 
-<img src="docs/screenshot-dark.png" alt="react-whiteboard 官网（深色模式）" width="880" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-zh-dark.png" />
+  <img src="docs/screenshot-zh-light.png" alt="react-whiteboard 官网和可直接使用的白板" width="880" />
+</picture>
 
 </div>
 

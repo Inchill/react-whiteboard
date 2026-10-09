@@ -12,7 +12,10 @@ Infinite canvas, shapes, text, selection, undo and PNG / SVG export — about 23
 [![CI](https://github.com/Inchill/react-whiteboard/actions/workflows/ci.yml/badge.svg)](https://github.com/Inchill/react-whiteboard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-<img src="docs/screenshot.png" alt="The react-whiteboard website with the live board" width="880" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-en-dark.png" />
+  <img src="docs/screenshot-en-light.png" alt="The react-whiteboard website with the live board" width="880" />
+</picture>
 
 </div>
 

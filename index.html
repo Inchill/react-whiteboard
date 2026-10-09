@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>react-whiteboard — an open-source whiteboard for React</title>
+    <meta name="description" content="An open-source, zero-dependency infinite-canvas whiteboard component for React: shapes, text, selection, undo, dark mode, PNG/SVG export." />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="react-whiteboard" />
+    <meta property="og:description" content="A whiteboard you can drop into any React app." />
+    <meta property="og:image" content="https://inchill.github.io/react-whiteboard/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Apply the saved/system theme before first paint to avoid a flash.
+      try {
+        var p = JSON.parse(localStorage.getItem('react-whiteboard:site') || '{}');
+        document.documentElement.dataset.theme = p.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <noscript>This page needs JavaScript for the live demo. The full source is on GitHub: https://github.com/Inchill/react-whiteboard</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/site/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+name: Publish to npm
+
+# Push a tag like v1.0.0 to publish.
+#
+# Authentication, in order of preference:
+# 1. npm Trusted Publishing (OIDC) — no secret needed. Configure it on npmjs.com under
+#    the package's Settings → Trusted Publisher (repo Inchill/react-whiteboard, workflow release.yml).
+# 2. An NPM_TOKEN repository secret — only needed for the very first publish, because npm
+#    requires the package to exist before Trusted Publishing can be configured.
+#    Use a short-lived granular token and delete it once Trusted Publishing works.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # required for Trusted Publishing and provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      # Trusted Publishing needs npm CLI 11.5.1 or later.
+      - run: npm install -g npm@11
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - name: Check the tag matches package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+            exit 1
+          fi
+      - run: npm publish --provenance --access public
+        env:
+          # Empty once the secret is deleted; npm then uses Trusted Publishing.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

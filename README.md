@@ -202,7 +202,7 @@ src/
 tests/          Vitest unit and component tests
 ```
 
-The website deploys to GitHub Pages from `main` (see `.github/workflows/deploy.yml`). Pushing a `v*` tag publishes the package to npm (needs an `NPM_TOKEN` secret).
+The website deploys to GitHub Pages from `main` (see `.github/workflows/deploy.yml`). Merging a version bump into `main` publishes it to npm: bump `version` in `package.json` and add a matching section to `CHANGELOG.md` in the pull request, and `.github/workflows/release.yml` publishes it, tags `vX.Y.Z` and creates a GitHub release from that section. Changes that keep the version publish nothing.
 
 ## Contributing
 

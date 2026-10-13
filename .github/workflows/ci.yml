@@ -16,6 +16,11 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Merging a version bump publishes it (release.yml), with notes from CHANGELOG.md.
+      - name: CHANGELOG.md has a section for the version
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md || { echo "Add a '## $version' section to CHANGELOG.md" >&2; exit 1; }
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

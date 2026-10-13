@@ -1,23 +1,33 @@
-name: Publish to npm
+name: Release
 
-# Push a tag like v1.0.0 to publish.
+# The version in package.json is the switch: merging a pull request that bumps it publishes that
+# version. Pushes that leave the version alone (already on npm) do nothing.
+#
+# On a new version this tests and builds, publishes to npm with provenance (a version with a
+# pre-release suffix such as 1.2.0-beta.1 goes to the `next` dist-tag), tags the commit vX.Y.Z and
+# creates a GitHub release from the version's section in CHANGELOG.md.
 #
 # Authentication, in order of preference:
 # 1. npm Trusted Publishing (OIDC) — no secret needed. Configure it on npmjs.com under
 #    the package's Settings → Trusted Publisher (repo Inchill/react-whiteboard, workflow release.yml).
-# 2. An NPM_TOKEN repository secret — only needed for the very first publish, because npm
-#    requires the package to exist before Trusted Publishing can be configured.
-#    Use a short-lived granular token and delete it once Trusted Publishing works.
+# 2. An NPM_TOKEN repository secret — use a short-lived granular token and delete it once
+#    Trusted Publishing works.
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
-  contents: read
-  id-token: write # required for Trusted Publishing and provenance
+  contents: write # push the tag and create the release
+  id-token: write # Trusted Publishing and provenance
+
+# Never run two releases at once, and never cancel one halfway through publishing.
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,18 +37,68 @@ jobs:
           node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
-      # Trusted Publishing needs npm CLI 11.5.1 or later.
-      - run: npm install -g npm@11
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - name: Check the tag matches package.json
+
+      - name: Is this version new?
+        id: version
         run: |
+          name="$(node -p "require('./package.json').name")"
           version="$(node -p "require('./package.json').version")"
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package.json version $version" >&2
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "$name@$version" version > /dev/null 2>&1; then
+            echo "$name@$version is already on npm; nothing to release."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Releasing $name@$version."
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Trusted Publishing needs npm CLI 11.5.1 or later.
+      - if: steps.version.outputs.new == 'true'
+        run: npm install -g npm@11
+      - if: steps.version.outputs.new == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: steps.version.outputs.new == 'true'
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+
+      - name: Release notes from CHANGELOG.md
+        if: steps.version.outputs.new == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # The lines under "## <version>" up to the next "## " heading.
+          awk -v v="$VERSION" '
+            index($0, "## " v " ") == 1 || $0 == "## " v { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "CHANGELOG.md has no section for $VERSION" >&2
             exit 1
           fi
-      - run: npm publish --provenance --access public
+
+      - name: Publish to npm
+        if: steps.version.outputs.new == 'true'
         env:
+          VERSION: ${{ steps.version.outputs.version }}
           # Empty once the secret is deleted; npm then uses Trusted Publishing.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          case "$VERSION" in
+            *-*) dist_tag=next ;;
+            *) dist_tag=latest ;;
+          esac
+          # prepublishOnly builds the library.
+          npm publish --provenance --access public --tag "$dist_tag"
+
+      - name: Tag and create the GitHub release
+        if: steps.version.outputs.new == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --notes-file release-notes.md $prerelease

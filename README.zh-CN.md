@@ -157,7 +157,7 @@ pnpm build:lib    # 组件库 → dist/lib
 - `src/app/`：`/board/` 全屏白板
 - `tests/`：Vitest 单元测试和组件测试
 
-推送到 `main` 会自动部署官网到 GitHub Pages；推送 `v*` 标签会发布到 npm（需要配置 `NPM_TOKEN` secret）。
+推送到 `main` 会自动部署官网到 GitHub Pages；版本号就是发布开关：在 PR 里把 `package.json` 的 `version` 升级，并在 `CHANGELOG.md` 里加上对应版本的一节，合入 `main` 后 `.github/workflows/release.yml` 会发布到 npm、打上 `vX.Y.Z` 标签，并用这一节创建 GitHub Release；不改版本号的合入不会发布。
 
 ## 参与贡献
 

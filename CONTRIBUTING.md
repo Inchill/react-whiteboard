@@ -34,6 +34,7 @@ pnpm test
 | `src/whiteboard/types.ts` | Shape and state types |
 | `src/whiteboard/geometry.ts` | Bounds, hit-testing, camera math, path smoothing |
 | `src/whiteboard/shapes.ts` | Creating / updating / styling shapes |
+| `src/whiteboard/linear.ts` | Elbow and curved lines: points, curves, simplifying a drawn curve |
 | `src/whiteboard/render.ts` | Canvas renderer |
 | `src/whiteboard/export.ts` | SVG / PNG / JSON import & export |
 | `src/whiteboard/history.ts` | Undo/redo reducer |
@@ -46,6 +47,10 @@ pnpm test
 1. Add the type to `Shape` in `types.ts`.
 2. Handle it in `getBounds`, `hitTest`, `translateShape` (`geometry.ts`), `createShape` / `updateDraft` / `finalizeShape` (`shapes.ts`), `drawShape` (`render.ts`), `shapeToSvg` and `isValidShape` (`export.ts`).
 3. Add a tool entry in `constants.ts`, an icon in `icons.tsx` and labels in `i18n.ts`.
+
+## Releasing
+
+The version in `package.json` is the release switch. To release, bump it in your pull request (semver: `fix` → patch, `feat` → minor, breaking → major) and add a `## X.Y.Z — date` section at the top of `CHANGELOG.md`; CI fails without it. Once the pull request is merged into `main`, the release workflow publishes to npm, tags `vX.Y.Z` and creates a GitHub release from that section. A version with a pre-release suffix (`1.2.0-beta.1`) is published under the `next` dist-tag.
 
 ## Commit messages
 

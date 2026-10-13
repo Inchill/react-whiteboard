@@ -28,6 +28,7 @@ Infinite canvas, shapes, text, selection, undo and PNG / SVG export — about 23
 - **Export** — PNG, SVG, copy PNG to clipboard, save/open `.json` (also by drag-and-drop)
 - **Keyboard first** — single-key tool shortcuts, Shift to constrain angles and squares, arrow keys to nudge, `?` for the cheat sheet
 - **Feels like a pen** — strokes follow Apple Pencil / tablet pressure (or drawing speed with a mouse or finger) and taper at both ends
+- **Elbow and curved arrows** — lines and arrows can be straight, turn at right angles like a flowchart connector, or follow your drag as a smooth curve
 - **Rub-out eraser** — erase just the part of a stroke you rub over, or switch to removing whole shapes
 - **Touch & stylus** — Pointer Events with coalesced samples, two-finger pinch zoom
 - **Autosave** to `localStorage`, **dark mode**, **English / 中文 UI**

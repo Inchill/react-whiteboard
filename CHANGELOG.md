@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Elbow and curved lines and arrows. The style panel's new *Shape* option sets a line or arrow to straight, elbow (right-angled turns, like a flowchart connector) or curve (a smooth curve that follows your drag). It also changes the shape of selected lines.
+- `LinearShape` gains optional `via` (points the line passes through) and `curved`. Lines without them are straight, as before, so existing documents are unchanged; older versions of the library draw new elbow and curved lines as straight lines.
+- `LineRoute` type export and a `lineRoute` field in `StyleState`.
+
 ## 1.0.0 — 2026-10-08
 
 A rewrite of the original canvas drawing prototype.

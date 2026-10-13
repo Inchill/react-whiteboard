@@ -1,0 +1,5 @@
+# Formatting-only commits, skipped by `git blame` (GitHub reads this file automatically;
+# locally: git config blame.ignoreRevsFile .git-blame-ignore-revs).
+
+# style: reformat with Prettier (2-space indentation)
+9d50b8e4a1142ca0d771d83288ab501732602e85

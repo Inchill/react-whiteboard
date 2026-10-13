@@ -87,6 +87,8 @@ export type StyleState = {
     strokeStyle: StrokeStyle;
     fill: FillStyle;
     fontSize: number;
+    /** Route for new lines and arrows. */
+    lineRoute: LineRoute;
     /** Pen strokes follow stylus pressure / drawing speed. */
     pressure: boolean;
     /** `partial` cuts freehand strokes where the eraser passes; `stroke` removes whole shapes. */

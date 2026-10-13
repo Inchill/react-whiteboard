@@ -20,6 +20,7 @@ export const DEFAULT_STYLE: StyleState = {
     strokeStyle: 'solid',
     fill: 'none',
     fontSize: 24,
+    lineRoute: 'straight',
     pressure: true,
     eraserMode: 'partial',
     eraserSize: 12,

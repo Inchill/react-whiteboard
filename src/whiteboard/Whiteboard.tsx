@@ -35,6 +35,7 @@ import { detectLocale, MESSAGES } from './i18n';
 import { Icons } from './icons';
 import { drawScene, resolveColor } from './render';
 import { eraseAt } from './erase';
+import { routeOf } from './linear';
 import { samplePressure } from './stroke';
 import { applyStyle, createId, createShape, finalizeShape, isDrawableTool, updateDraft } from './shapes';
 import { loadState, saveState } from './storage';
@@ -115,6 +116,7 @@ function styleFromShape(shape: Shape, fallback: StyleState): StyleState {
         strokeStyle: shape.strokeStyle,
         fill: 'fill' in shape ? shape.fill : fallback.fill,
         fontSize: shape.type === 'text' ? shape.fontSize : fallback.fontSize,
+        lineRoute: shape.type === 'line' || shape.type === 'arrow' ? routeOf(shape) : fallback.lineRoute,
     };
 }
 
@@ -729,7 +731,7 @@ export const Whiteboard = forwardRef<WhiteboardHandle, WhiteboardProps>(function
 
         switch (it.kind) {
             case 'draw': {
-                const final = draftRef.current && finalizeShape(draftRef.current);
+                const final = draftRef.current && finalizeShape(draftRef.current, live.current.camera.zoom);
                 draftRef.current = null;
                 setDrawing(false);
                 if (final) commit((prev) => [...prev, final]);

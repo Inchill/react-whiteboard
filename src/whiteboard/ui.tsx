@@ -2,7 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { DRAWING_TOOLS, FONT_SIZES, MOD, PALETTE, THEME_COLORS, TOOLS, type ToolDef } from './constants';
 import { Icons } from './icons';
 import type { Messages } from './i18n';
-import { INK, type FillStyle, type Shape, type StrokeStyle, type StyleState, type Theme, type Tool } from './types';
+import { INK, type FillStyle, type LineRoute, type Shape, type StrokeStyle, type StyleState, type Theme, type Tool } from './types';
 
 
 type IconButtonProps = {
@@ -139,6 +139,7 @@ export function StylePanel({ t, theme, tool, style, selected, onChange, onDuplic
     const showStroke = !onlyText;
     const showStrokeStyle = [...types].some((x) => x !== 'text' && x !== 'highlighter' && x !== 'pressurePen');
     const showFill = [...types].some((x) => x === 'rect' || x === 'ellipse' || x === 'triangle');
+    const showRoute = types.has('line') || types.has('arrow');
     const showFont = types.has('text');
     const showPressure = tool === 'pen' && selected.length === 0;
     const customActive = !PALETTE.includes(style.color);
@@ -209,6 +210,21 @@ export function StylePanel({ t, theme, tool, style, selected, onChange, onDuplic
                             { value: 'solid', label: t.solid, icon: <path d="M4 12h16" /> },
                             { value: 'dashed', label: t.dashed, icon: <path d="M4 12h4M10 12h4M16 12h4" /> },
                             { value: 'dotted', label: t.dotted, icon: <path d="M4 12h.01M8 12h.01M12 12h.01M16 12h.01M20 12h.01" strokeWidth={2.6} /> },
+                        ]}
+                    />
+                </fieldset>
+            )}
+
+            {showRoute && (
+                <fieldset>
+                    <legend>{t.lineRoute}</legend>
+                    <Segmented<LineRoute>
+                        value={style.lineRoute}
+                        onChange={(v) => onChange({ lineRoute: v })}
+                        options={[
+                            { value: 'straight', label: t.routeStraight, icon: <path d="M5 19 19 5" /> },
+                            { value: 'elbow', label: t.routeElbow, icon: <path d="M5 18h7V6h7" strokeLinejoin="round" /> },
+                            { value: 'curve', label: t.routeCurve, icon: <path d="M5 19c0-9 14-5 14-14" /> },
                         ]}
                     />
                 </fieldset>

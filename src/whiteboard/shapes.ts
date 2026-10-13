@@ -1,4 +1,5 @@
 import { distance, normalizeBox, snapAngle } from './geometry';
+import { elbowVia, simplify, withRoute } from './linear';
 import { DEFAULT_PRESSURE } from './stroke';
 import type { Point, Shape, StrokePoint, StyleState, Tool } from './types';
 
@@ -30,8 +31,13 @@ export function createShape(tool: DrawableTool, p: Point, style: StyleState, pre
             // Highlighters are always solid and wider than the pen.
             return { ...base, type: 'highlighter', strokeStyle: 'solid', strokeWidth: Math.max(12, style.strokeWidth * 3), points: [[p.x, p.y]] };
         case 'line':
-        case 'arrow':
-            return { ...base, type: tool, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+        case 'arrow': {
+            const line = { ...base, type: tool, x1: p.x, y1: p.y, x2: p.x, y2: p.y };
+            // While drawing, an empty `via` marks an elbow and `curved` a curve; finalizeShape tidies both.
+            if (style.lineRoute === 'elbow') return { ...line, via: [] };
+            if (style.lineRoute === 'curve') return { ...line, via: [], curved: true };
+            return line;
+        }
         default:
             return { ...base, type: tool, x: p.x, y: p.y, w: 0, h: 0, fill: style.fill };
     }
@@ -39,7 +45,9 @@ export function createShape(tool: DrawableTool, p: Point, style: StyleState, pre
 
 /**
  * Update an in-progress shape from the drag start/current point.
- * `constrain` (Shift) snaps lines to 15° and boxes to equal sides.
+ * `constrain` (Shift) snaps straight lines to 15° and boxes to equal sides.
+ * An elbow line turns at right angles between start and current point; a curve follows the
+ * drag like a pen and is smoothed when finished.
  */
 export function updateDraft(shape: Shape, start: Point, current: Point, constrain: boolean, zoom = 1, pressure?: number): Shape {
     switch (shape.type) {
@@ -53,6 +61,13 @@ export function updateDraft(shape: Shape, start: Point, current: Point, constrai
         }
         case 'line':
         case 'arrow': {
+            if (shape.curved) {
+                const via = shape.via ?? [];
+                const last = via.length ? { x: via[via.length - 1][0], y: via[via.length - 1][1] } : start;
+                const next: [number, number][] = distance(last, current) < 2 / zoom ? via : [...via, [current.x, current.y]];
+                return { ...shape, via: next, x2: current.x, y2: current.y };
+            }
+            if (shape.via) return { ...shape, via: elbowVia(start, current), x2: current.x, y2: current.y };
             const end = constrain ? snapAngle(start, current) : current;
             return { ...shape, x2: end.x, y2: end.y };
         }
@@ -71,15 +86,31 @@ export function updateDraft(shape: Shape, start: Point, current: Point, constrai
     }
 }
 
-/** Normalize a finished shape; returns null if it is too small to keep. */
-export function finalizeShape(shape: Shape): Shape | null {
+/**
+ * Normalize a finished shape; returns null if it is too small to keep. A drawn curve is reduced
+ * to the few points that capture its shape (within a few screen pixels at `zoom`).
+ */
+export function finalizeShape(shape: Shape, zoom = 1): Shape | null {
     switch (shape.type) {
         case 'pen':
         case 'highlighter':
             return shape;
         case 'line':
-        case 'arrow':
-            return Math.hypot(shape.x2 - shape.x1, shape.y2 - shape.y1) < 2 ? null : shape;
+        case 'arrow': {
+            const { via: raw, curved, ...line } = shape;
+            if (curved) {
+                const path = [{ x: line.x1, y: line.y1 }, ...(raw ?? []).map(([x, y]) => ({ x, y }))];
+                const end = { x: line.x2, y: line.y2 };
+                // The last raw sample usually sits on the end point.
+                if (distance(path[path.length - 1], end) > 0.01) path.push(end);
+                const kept = simplify(path, 6 / zoom).slice(1, -1);
+                const span = Math.max(...path.map((p) => distance(p, path[0])));
+                if (span < 2) return null;
+                return kept.length ? { ...line, via: kept.map((p): [number, number] => [p.x, p.y]), curved: true } : line;
+            }
+            if (Math.hypot(line.x2 - line.x1, line.y2 - line.y1) < 2) return null;
+            return raw?.length ? { ...line, via: raw } : line;
+        }
         case 'text':
             return shape.text.trim() ? shape : null;
         default: {
@@ -106,6 +137,7 @@ export function applyStyle(shape: Shape, patch: Partial<StyleState>): Shape {
         next.w *= k;
         next.h *= k;
     }
+    if (patch.lineRoute !== undefined && (next.type === 'line' || next.type === 'arrow')) return withRoute(next, patch.lineRoute);
     return next;
 }
 
@@ -119,7 +151,14 @@ export function compactShape(shape: Shape): Shape {
             return { ...shape, points: shape.points.map((pt) => (pt.length === 3 ? [round(pt[0]), round(pt[1]), round(pt[2])] : [round(pt[0]), round(pt[1])])) };
         case 'line':
         case 'arrow':
-            return { ...shape, x1: round(shape.x1), y1: round(shape.y1), x2: round(shape.x2), y2: round(shape.y2) };
+            return {
+                ...shape,
+                x1: round(shape.x1),
+                y1: round(shape.y1),
+                x2: round(shape.x2),
+                y2: round(shape.y2),
+                ...(shape.via ? { via: shape.via.map(([x, y]): [number, number] => [round(x), round(y)]) } : {}),
+            };
         default:
             return { ...shape, x: round(shape.x), y: round(shape.y), w: round(shape.w), h: round(shape.h) };
     }

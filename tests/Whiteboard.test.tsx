@@ -97,6 +97,17 @@ describe('<Whiteboard />', () => {
         expect(screen.getByLabelText('Eraser size')).toHaveValue('12');
     });
 
+    it('offers straight, elbow and curve for lines and arrows only', () => {
+        render(<Whiteboard storageKey={null} locale="en" />);
+        expect(screen.queryByRole('button', { name: 'Elbow' })).toBeNull();
+        fireEvent.keyDown(window, { key: 'a' });
+        expect(screen.getByRole('button', { name: 'Straight' })).toHaveAttribute('aria-pressed', 'true');
+        fireEvent.click(screen.getByRole('button', { name: 'Elbow' }));
+        expect(screen.getByRole('button', { name: 'Elbow' })).toHaveAttribute('aria-pressed', 'true');
+        fireEvent.keyDown(window, { key: 'l' });
+        expect(screen.getByRole('button', { name: 'Elbow' })).toHaveAttribute('aria-pressed', 'true');
+    });
+
     it('opens the menu and the shortcuts dialog', () => {
         render(<Whiteboard storageKey={null} locale="zh" />);
         fireEvent.click(screen.getByRole('button', { name: '菜单' }));

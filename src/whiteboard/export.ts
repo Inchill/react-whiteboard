@@ -1,9 +1,10 @@
 import { FONT_FAMILY, LINE_HEIGHT, THEME_COLORS } from './constants';
 import { arrowHead, pathToSvgD, shapesBounds, smoothPath, trianglePoints } from './geometry';
+import { arrivalFrom, curveSegments, linePoints } from './linear';
 import { dashArray, drawShape, HIGHLIGHTER_ALPHA, resolveColor, SEMI_FILL_ALPHA } from './render';
 import { compactShape } from './shapes';
 import { outlineToSvgPath, strokeOutline } from './stroke';
-import type { Shape, Theme, WhiteboardData } from './types';
+import type { LinearShape, Shape, Theme, WhiteboardData } from './types';
 
 export type ExportOptions = {
     theme?: Theme;
@@ -16,6 +17,18 @@ const escapeXml = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const n = (v: number) => +v.toFixed(2);
+
+/** A straight line stays a <line>; elbows and curves become a <path>. */
+function lineToSvg(shape: LinearShape, strokeAttrs: string): string {
+    if (!shape.via?.length) {
+        return `<line x1="${n(shape.x1)}" y1="${n(shape.y1)}" x2="${n(shape.x2)}" y2="${n(shape.y2)}" ${strokeAttrs}/>`;
+    }
+    const pts = linePoints(shape);
+    const d = shape.curved
+        ? `M${n(pts[0].x)} ${n(pts[0].y)}` + curveSegments(pts).map((s) => `C${n(s.c1.x)} ${n(s.c1.y)} ${n(s.c2.x)} ${n(s.c2.y)} ${n(s.to.x)} ${n(s.to.y)}`).join('')
+        : pts.map((p, i) => `${i ? 'L' : 'M'}${n(p.x)} ${n(p.y)}`).join('');
+    return `<path d="${d}" fill="none" ${strokeAttrs}/>`;
+}
 
 function shapeToSvg(shape: Shape, theme: Theme): string {
     const color = escapeXml(resolveColor(shape.color, theme));
@@ -34,14 +47,13 @@ function shapeToSvg(shape: Shape, theme: Theme): string {
             return `<path d="${pathToSvgD(smoothPath(shape.points))}" fill="none" ${strokeAttrs}${opacity}/>`;
         }
         case 'line':
-            return `<line x1="${n(shape.x1)}" y1="${n(shape.y1)}" x2="${n(shape.x2)}" y2="${n(shape.y2)}" ${strokeAttrs}/>`;
         case 'arrow': {
-            const [a, b] = arrowHead(shape.x1, shape.y1, shape.x2, shape.y2, shape.strokeWidth);
+            const body = lineToSvg(shape, strokeAttrs);
+            if (shape.type === 'line') return body;
+            const from = arrivalFrom(shape);
+            const [a, b] = arrowHead(from.x, from.y, shape.x2, shape.y2, shape.strokeWidth);
             const solid = strokeAttrs.replace(/ stroke-dasharray="[^"]*"/, '');
-            return (
-                `<g><line x1="${n(shape.x1)}" y1="${n(shape.y1)}" x2="${n(shape.x2)}" y2="${n(shape.y2)}" ${strokeAttrs}/>` +
-                `<polyline points="${n(a.x)},${n(a.y)} ${n(shape.x2)},${n(shape.y2)} ${n(b.x)},${n(b.y)}" fill="none" ${solid}/></g>`
-            );
+            return `<g>${body}<polyline points="${n(a.x)},${n(a.y)} ${n(shape.x2)},${n(shape.y2)} ${n(b.x)},${n(b.y)}" fill="none" ${solid}/></g>`;
         }
         case 'rect':
         case 'ellipse':
@@ -116,6 +128,9 @@ export function serialize(shapes: Shape[]): string {
     return JSON.stringify(data);
 }
 
+/** More via points than any drawn line needs; a guard against malformed files. */
+const MAX_VIA = 500;
+
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const isStr = (v: unknown): v is string => typeof v === 'string';
 
@@ -135,7 +150,12 @@ function isValidShape(s: unknown): s is Shape {
             );
         case 'line':
         case 'arrow':
-            return [o.x1, o.y1, o.x2, o.y2].every(isNum);
+            return (
+                [o.x1, o.y1, o.x2, o.y2].every(isNum) &&
+                (o.via === undefined ||
+                    (Array.isArray(o.via) && o.via.length <= MAX_VIA && o.via.every((p) => Array.isArray(p) && p.length === 2 && p.every(isNum)))) &&
+                (o.curved === undefined || typeof o.curved === 'boolean')
+            );
         case 'rect':
         case 'ellipse':
         case 'triangle':

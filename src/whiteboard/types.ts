@@ -18,6 +18,8 @@ export type Tool =
     | 'text';
 
 export type StrokeStyle = 'solid' | 'dashed' | 'dotted';
+/** How a line or arrow gets from start to end: one straight segment, right-angled turns, or a smooth curve. */
+export type LineRoute = 'straight' | 'elbow' | 'curve';
 export type FillStyle = 'none' | 'semi' | 'solid';
 export type Theme = 'light' | 'dark';
 export type Locale = 'en' | 'zh';
@@ -42,10 +44,16 @@ export type FreehandShape = BaseShape & {
 
 export type LinearShape = BaseShape & {
     type: 'line' | 'arrow';
+    /** Start point. */
     x1: number;
     y1: number;
+    /** End point (the arrow head). */
     x2: number;
     y2: number;
+    /** Points the line passes through between start and end. Absent for a straight line. */
+    via?: [number, number][];
+    /** Draw a smooth curve through the points instead of straight segments. */
+    curved?: boolean;
 };
 
 export type BoxShape = BaseShape & {

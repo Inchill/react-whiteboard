@@ -1,7 +1,8 @@
 import { FONT_FAMILY, LINE_HEIGHT, THEME_COLORS } from './constants';
 import { arrowHead, boundsIntersect, getBounds, smoothPath, trianglePoints, unionBounds, worldToScreen } from './geometry';
+import { arrivalFrom, curveSegments, linePoints } from './linear';
 import { strokeOutline, traceOutline } from './stroke';
-import { INK, type Bounds, type Camera, type Shape, type StrokeStyle, type Theme } from './types';
+import { INK, type Bounds, type Camera, type LinearShape, type Shape, type StrokeStyle, type Theme } from './types';
 
 export const resolveColor = (color: string, theme: Theme) => (color === INK ? THEME_COLORS[theme].ink : color);
 
@@ -13,6 +14,17 @@ export function dashArray(style: StrokeStyle, width: number): number[] {
 
 export const HIGHLIGHTER_ALPHA = 0.35;
 export const SEMI_FILL_ALPHA = 0.25;
+
+/** Add a line's path (straight, elbow or curved) to the current canvas path. */
+function traceLine(ctx: CanvasRenderingContext2D, shape: LinearShape) {
+    const pts = linePoints(shape);
+    ctx.moveTo(pts[0].x, pts[0].y);
+    if (shape.curved && pts.length > 2) {
+        for (const s of curveSegments(pts)) ctx.bezierCurveTo(s.c1.x, s.c1.y, s.c2.x, s.c2.y, s.to.x, s.to.y);
+    } else {
+        for (const p of pts.slice(1)) ctx.lineTo(p.x, p.y);
+    }
+}
 
 /**
  * Draw one shape. The context must already be in world coordinates.
@@ -50,11 +62,11 @@ export function drawShape(ctx: CanvasRenderingContext2D, shape: Shape, theme: Th
         case 'line':
         case 'arrow': {
             ctx.beginPath();
-            ctx.moveTo(shape.x1, shape.y1);
-            ctx.lineTo(shape.x2, shape.y2);
+            traceLine(ctx, shape);
             ctx.stroke();
             if (shape.type === 'arrow') {
-                const [a, b] = arrowHead(shape.x1, shape.y1, shape.x2, shape.y2, shape.strokeWidth);
+                const from = arrivalFrom(shape);
+                const [a, b] = arrowHead(from.x, from.y, shape.x2, shape.y2, shape.strokeWidth);
                 ctx.setLineDash([]);
                 ctx.beginPath();
                 ctx.moveTo(a.x, a.y);

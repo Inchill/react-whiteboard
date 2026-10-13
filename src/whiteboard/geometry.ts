@@ -1,4 +1,5 @@
 import { FONT_FAMILY, LINE_HEIGHT } from './constants';
+import { distanceToLine, linePolyline } from './linear';
 import { maxPressureRadius } from './stroke';
 import type { Bounds, BoxShape, Camera, Point, Shape, StrokePoint } from './types';
 
@@ -146,13 +147,12 @@ export function getBounds(shape: Shape): Bounds {
             return { minX: minX - pad, minY: minY - pad, maxX: maxX + pad, maxY: maxY + pad };
         }
         case 'line':
-        case 'arrow':
-            return {
-                minX: Math.min(shape.x1, shape.x2) - pad,
-                minY: Math.min(shape.y1, shape.y2) - pad,
-                maxX: Math.max(shape.x1, shape.x2) + pad,
-                maxY: Math.max(shape.y1, shape.y2) + pad,
-            };
+        case 'arrow': {
+            const pts = linePolyline(shape);
+            const xs = pts.map((p) => p.x);
+            const ys = pts.map((p) => p.y);
+            return { minX: Math.min(...xs) - pad, minY: Math.min(...ys) - pad, maxX: Math.max(...xs) + pad, maxY: Math.max(...ys) + pad };
+        }
         default:
             return {
                 minX: Math.min(shape.x, shape.x + shape.w) - pad,
@@ -227,7 +227,7 @@ export function hitTest(shape: Shape, p: Point, tolerance: number): boolean {
         }
         case 'line':
         case 'arrow':
-            return distanceToSegment(p, { x: shape.x1, y: shape.y1 }, { x: shape.x2, y: shape.y2 }) <= tol;
+            return distanceToLine(p, shape) <= tol;
         case 'rect': {
             const inside = p.x >= shape.x && p.x <= shape.x + shape.w && p.y >= shape.y && p.y <= shape.y + shape.h;
             if (shape.fill !== 'none' && inside) return true;
@@ -274,7 +274,14 @@ export function translateShape<T extends Shape>(shape: T, dx: number, dy: number
             return { ...shape, points: shape.points.map((pt) => (pt.length === 3 ? [pt[0] + dx, pt[1] + dy, pt[2]] : [pt[0] + dx, pt[1] + dy])) };
         case 'line':
         case 'arrow':
-            return { ...shape, x1: shape.x1 + dx, y1: shape.y1 + dy, x2: shape.x2 + dx, y2: shape.y2 + dy };
+            return {
+                ...shape,
+                x1: shape.x1 + dx,
+                y1: shape.y1 + dy,
+                x2: shape.x2 + dx,
+                y2: shape.y2 + dy,
+                ...(shape.via ? { via: shape.via.map(([x, y]): [number, number] => [x + dx, y + dy]) } : {}),
+            };
         default:
             return { ...shape, x: shape.x + dx, y: shape.y + dy };
     }

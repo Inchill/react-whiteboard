@@ -11,6 +11,7 @@ export type {
     Camera,
     StyleState,
     StrokeStyle,
+    LineRoute,
     FillStyle,
     WhiteboardData,
 } from './types';

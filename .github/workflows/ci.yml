@@ -21,6 +21,7 @@ jobs:
         run: |
           version="$(node -p "require('./package.json').version")"
           grep -Eq "^## ${version//./\\.}( |$)" CHANGELOG.md || { echo "Add a '## $version' section to CHANGELOG.md" >&2; exit 1; }
+      - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

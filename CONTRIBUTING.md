@@ -17,10 +17,13 @@ Node.js 24+ and pnpm 10+ are required (`.nvmrc` pins 24; installs fail on older 
 ## Before opening a pull request
 
 ```bash
+pnpm format       # Prettier: 2-space indentation, single quotes, semicolons
 pnpm lint
 pnpm typecheck
 pnpm test
 ```
+
+Code style is set by `.prettierrc.json` and `.editorconfig`; editors with the Prettier and EditorConfig extensions apply it on save. CI runs `pnpm format:check`.
 
 - Keep the library (`src/whiteboard`) free of runtime dependencies other than React.
 - Add or update tests in `tests/` for behaviour changes (`tests/<module>.test.ts`). Pure logic lives in `geometry.ts`, `shapes.ts`, `history.ts` and `export.ts`, which are easy to unit test.

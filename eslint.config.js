@@ -20,10 +20,7 @@ export default tseslint.config(
         rules: {
             ...reactHooks.configs.recommended.rules,
             'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-            quotes: ['error', 'single', { avoidEscape: true }],
-            semi: ['error', 'always'],
-            'eol-last': ['error', 'always'],
-            indent: ['error', 4, { SwitchCase: 1 }],
+            // Formatting (indentation, quotes, semicolons) is Prettier's job: `pnpm format`.
             'no-console': 'warn',
         },
     },

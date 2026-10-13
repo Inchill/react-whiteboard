@@ -7,7 +7,7 @@ import { Landing } from './Landing';
 import './site.css';
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-        <Landing />
-    </StrictMode>,
+  <StrictMode>
+    <Landing />
+  </StrictMode>,
 );

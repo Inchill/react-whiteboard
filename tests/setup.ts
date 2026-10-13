@@ -6,9 +6,9 @@ afterEach(() => cleanup());
 
 // jsdom has no ResizeObserver / canvas; provide light stubs so components mount.
 class ResizeObserverStub {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 }
 globalThis.ResizeObserver ??= ResizeObserverStub as unknown as typeof ResizeObserver;
 

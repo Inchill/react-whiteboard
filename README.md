@@ -28,6 +28,7 @@ Infinite canvas, shapes, text, selection, undo and PNG / SVG export — about 23
 - **Export** — PNG, SVG, copy PNG to clipboard, save/open `.json` (also by drag-and-drop)
 - **Keyboard first** — single-key tool shortcuts, Shift to constrain angles and squares, arrow keys to nudge, `?` for the cheat sheet
 - **Feels like a pen** — strokes follow Apple Pencil / tablet pressure (or drawing speed with a mouse or finger) and taper at both ends
+- **Elbow and curved arrows** — lines and arrows can be straight, turn at right angles like a flowchart connector, or follow your drag as a smooth curve
 - **Rub-out eraser** — erase just the part of a stroke you rub over, or switch to removing whole shapes
 - **Touch & stylus** — Pointer Events with coalesced samples, two-finger pinch zoom
 - **Autosave** to `localStorage`, **dark mode**, **English / 中文 UI**
@@ -201,7 +202,7 @@ src/
 tests/          Vitest unit and component tests
 ```
 
-The website deploys to GitHub Pages from `main` (see `.github/workflows/deploy.yml`). Pushing a `v*` tag publishes the package to npm (needs an `NPM_TOKEN` secret).
+The website deploys to GitHub Pages from `main` (see `.github/workflows/deploy.yml`). Merging a version bump into `main` publishes it to npm: bump `version` in `package.json` and add a matching section to `CHANGELOG.md` in the pull request, and `.github/workflows/release.yml` publishes it, tags `vX.Y.Z` and creates a GitHub release from that section. Changes that keep the version publish nothing.
 
 ## Contributing
 

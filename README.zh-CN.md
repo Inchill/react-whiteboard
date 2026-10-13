@@ -25,6 +25,7 @@
 - **导出**：PNG、SVG、复制 PNG 到剪贴板，保存 / 打开 `.json`（支持拖拽文件进画布）
 - **键盘优先**：单键切换工具，Shift 锁定角度 / 正方形，方向键微调，按 `?` 查看全部快捷键
 - **像真笔一样**：线条粗细跟随 Apple Pencil / 数位板的压力变化（用鼠标或手指时随书写速度变化），起笔收笔自然变尖
+- **折线和曲线箭头**：直线和箭头可以是直的，可以像流程图连线一样直角拐弯，也可以顺着拖动的轨迹画成平滑曲线
 - **局部擦除**：只擦掉划过的那一段笔画，也可以切换成整笔删除
 - **触屏与手写笔**：基于 Pointer Events 并读取合并采样点，支持双指缩放
 - **自动保存**到 `localStorage`，**深色模式**，**中英文界面**
@@ -156,7 +157,7 @@ pnpm build:lib    # 组件库 → dist/lib
 - `src/app/`：`/board/` 全屏白板
 - `tests/`：Vitest 单元测试和组件测试
 
-推送到 `main` 会自动部署官网到 GitHub Pages；推送 `v*` 标签会发布到 npm（需要配置 `NPM_TOKEN` secret）。
+推送到 `main` 会自动部署官网到 GitHub Pages；版本号就是发布开关：在 PR 里把 `package.json` 的 `version` 升级，并在 `CHANGELOG.md` 里加上对应版本的一节，合入 `main` 后 `.github/workflows/release.yml` 会发布到 npm、打上 `vX.Y.Z` 标签，并用这一节创建 GitHub Release；不改版本号的合入不会发布。
 
 ## 参与贡献
 

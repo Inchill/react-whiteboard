@@ -355,16 +355,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* The gap is wider than the selection ring (2px + 2px), so a selected swatch never touches its neighbours. */
 .rwb-swatches {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 4px;
+  gap: 8px;
 }
 
 .rwb-swatch {
   position: relative;
-  width: 20px;
-  height: 20px;
+  width: 100%;
+  aspect-ratio: 1;
   padding: 0;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 6px;

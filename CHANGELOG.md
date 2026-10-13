@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 — 2026-10-13
 
 ### Added
 - Elbow and curved lines and arrows. The style panel's new *Shape* option sets a line or arrow to straight, elbow (right-angled turns, like a flowchart connector) or curve (a smooth curve that follows your drag). It also changes the shape of selected lines.

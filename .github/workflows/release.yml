@@ -7,11 +7,11 @@ name: Release
 # pre-release suffix such as 1.2.0-beta.1 goes to the `next` dist-tag), tags the commit vX.Y.Z and
 # creates a GitHub release from the version's section in CHANGELOG.md.
 #
-# Authentication, in order of preference:
-# 1. npm Trusted Publishing (OIDC) — no secret needed. Configure it on npmjs.com under
-#    the package's Settings → Trusted Publisher (repo Inchill/react-whiteboard, workflow release.yml).
-# 2. An NPM_TOKEN repository secret — use a short-lived granular token and delete it once
-#    Trusted Publishing works.
+# Authentication is npm Trusted Publishing (OIDC) only; no token or secret is used. It is set up on
+# npmjs.com under the package's Settings → Trusted Publisher: GitHub Actions, user Inchill,
+# repository react-whiteboard, workflow release.yml, no environment, with npm publish and
+# npm dist-tag allowed. A new connection expires if it has not published within 48 hours, so set it
+# up shortly before a release, or create it again if it has expired.
 on:
   push:
     branches: [main]
@@ -86,8 +86,6 @@ jobs:
         timeout-minutes: 20
         env:
           VERSION: ${{ steps.version.outputs.version }}
-          # Empty once the secret is deleted; npm then uses Trusted Publishing.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           case "$VERSION" in
             *-*) dist_tag=next ;;

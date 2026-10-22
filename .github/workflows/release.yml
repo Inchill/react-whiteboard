@@ -83,7 +83,7 @@ jobs:
         if: steps.version.outputs.new == 'true'
         # A publish waiting on something (an approval, a one-time password) fails here instead of
         # holding the runner for hours.
-        timeout-minutes: 10
+        timeout-minutes: 20
         env:
           VERSION: ${{ steps.version.outputs.version }}
           # Empty once the secret is deleted; npm then uses Trusted Publishing.

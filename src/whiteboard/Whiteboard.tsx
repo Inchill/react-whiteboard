@@ -98,6 +98,8 @@ type Interaction =
 type TextEditing = { id: string | null; x: number; y: number; text: string; fontSize: number; color: string };
 
 const HIT_TOLERANCE = 6;
+/** iOS Safari zooms the page in when a text field under this size gets focus. */
+const MIN_EDITOR_FONT = 16;
 
 const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
 
@@ -950,6 +952,11 @@ export const Whiteboard = forwardRef<WhiteboardHandle, WhiteboardProps>(function
 
   const editorScreen = editing ? worldToScreen({ x: editing.x, y: editing.y }, camera) : null;
   const editorSize = editing ? measureText(editing.text || t.textPlaceholder, editing.fontSize) : null;
+  // iOS Safari zooms the whole page in when a field under 16px gets focus, and stays zoomed. Text on a
+  // zoomed-out board is often smaller than that, so the editor is laid out at 16px and scaled down to
+  // the on-screen size; the frame's border, padding and margin are scaled up to match.
+  const editorFont = editing ? editing.fontSize * camera.zoom : 0;
+  const editorScale = editorFont > 0 && editorFont < MIN_EDITOR_FONT ? editorFont / MIN_EDITOR_FONT : 1;
 
   return (
     <div
@@ -996,12 +1003,20 @@ export const Whiteboard = forwardRef<WhiteboardHandle, WhiteboardProps>(function
           style={{
             left: editorScreen.x,
             top: editorScreen.y,
-            width: editorSize.w * camera.zoom + editing.fontSize * camera.zoom,
-            height: editorSize.h * camera.zoom + 2,
-            fontSize: editing.fontSize * camera.zoom,
+            width: (editorSize.w * camera.zoom + editorFont) / editorScale,
+            height: (editorSize.h * camera.zoom + 2) / editorScale,
+            fontSize: editorFont / editorScale,
             lineHeight: LINE_HEIGHT,
             fontFamily: FONT_FAMILY,
             color: resolveColor(editing.color, theme),
+            ...(editorScale !== 1 && {
+              // Scale around the text's own top-left corner, which sits inside the frame.
+              transform: `scale(${editorScale})`,
+              transformOrigin: `${5 / editorScale}px ${5 / editorScale}px`,
+              borderWidth: 1 / editorScale,
+              padding: 4 / editorScale,
+              margin: -5 / editorScale,
+            }),
           }}
           onChange={(e) => setEditing((cur) => (cur ? { ...cur, text: e.target.value } : cur))}
           onBlur={commitText}

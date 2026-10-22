@@ -81,6 +81,9 @@ jobs:
 
       - name: Publish to npm
         if: steps.version.outputs.new == 'true'
+        # A publish waiting on something (an approval, a one-time password) fails here instead of
+        # holding the runner for hours.
+        timeout-minutes: 10
         env:
           VERSION: ${{ steps.version.outputs.version }}
           # Empty once the secret is deleted; npm then uses Trusted Publishing.
@@ -90,8 +93,11 @@ jobs:
             *-*) dist_tag=next ;;
             *) dist_tag=latest ;;
           esac
-          # prepublishOnly builds the library.
-          npm publish --provenance --access public --tag "$dist_tag"
+          npm --version
+          # prepublishOnly builds the library. Verbose output shows how npm authenticates (the
+          # Trusted Publishing token exchange) and each registry request; stdin is closed so npm
+          # cannot wait for input.
+          npm publish --provenance --access public --tag "$dist_tag" --loglevel verbose < /dev/null
 
       - name: Tag and create the GitHub release
         if: steps.version.outputs.new == 'true'

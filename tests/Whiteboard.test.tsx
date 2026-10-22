@@ -114,4 +114,35 @@ describe('<Whiteboard />', () => {
     fireEvent.click(screen.getByRole('menuitem', { name: /快捷键/ }));
     expect(screen.getByRole('dialog', { name: '快捷键' })).toBeInTheDocument();
   });
+
+  it('keeps the text editor at 16px or more and scales it down on a zoomed-out board', () => {
+    // jsdom has no PointerEvent; a MouseEvent with a pointer id is enough here.
+    class PointerEventStub extends MouseEvent {
+      pointerId: number;
+      constructor(type: string, init: PointerEventInit = {}) {
+        super(type, init);
+        this.pointerId = init.pointerId ?? 1;
+      }
+    }
+    vi.stubGlobal('PointerEvent', globalThis.PointerEvent ?? PointerEventStub);
+    const { container } = render(<Whiteboard storageKey={null} locale="en" initialTool="text" />);
+    const canvas = container.querySelector('canvas')!;
+    const editAt = () => {
+      fireEvent.pointerDown(canvas, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      fireEvent.pointerUp(canvas, { clientX: 100, clientY: 100, button: 0, pointerId: 1 });
+      return container.querySelector<HTMLTextAreaElement>('.rwb-text-editor')!;
+    };
+
+    // At 100% the editor uses the text's own size and is not scaled.
+    let editor = editAt();
+    expect(parseFloat(editor.style.fontSize)).toBeGreaterThanOrEqual(16);
+    expect(editor.style.transform).toBe('');
+    fireEvent.keyDown(editor, { key: 'Escape' });
+
+    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByRole('button', { name: 'Zoom out' }));
+    editor = editAt();
+    expect(editor.style.fontSize).toBe('16px');
+    expect(editor.style.transform).toMatch(/^scale\(0\.\d+\)$/);
+    vi.unstubAllGlobals();
+  });
 });

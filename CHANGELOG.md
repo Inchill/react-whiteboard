@@ -5,6 +5,8 @@
 ### Fixed
 - On narrow boards the bottom toolbar could also be scrolled up and down, which slid its buttons out of view. It now scrolls sideways only.
 - The main menu could run under the bottom toolbar on short boards, so its last items (such as *Clear canvas*) could not be reached. It now scrolls within the board and opens above the toolbar.
+- The dashed frame around text being edited lost its left edge in iOS Safari. The frame is now a border instead of an outline; the text stays where it was.
+- Editing text on a zoomed-out board made iOS Safari zoom the whole page in, because the editor's font was under 16px. The editor is now laid out at 16px or more and scaled down to the text's size on screen.
 
 ## 1.1.0 — 2026-10-13
 

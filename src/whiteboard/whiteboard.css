@@ -559,14 +559,17 @@
 }
 
 /* ---- text editor ---- */
+/* The dashed frame is a border around 4px of padding, pulled out by a matching negative margin so
+   the text stays exactly where it is drawn. An outline with an offset looked the same, but iOS
+   Safari dropped its left edge while typing. */
 .rwb-text-editor {
   position: absolute;
   z-index: 1;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  outline: 1px dashed var(--rwb-accent);
-  outline-offset: 4px;
+  box-sizing: content-box;
+  margin: -5px;
+  padding: 4px;
+  border: 1px dashed var(--rwb-accent);
+  outline: none;
   background: transparent;
   resize: none;
   overflow: hidden;

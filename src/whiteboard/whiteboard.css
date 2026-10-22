@@ -462,6 +462,10 @@
   top: 48px;
   left: 0;
   width: 240px;
+  /* Opens 60px below the board's top edge; on a short board it scrolls instead of running off the bottom. */
+  max-height: calc(100cqh - 72px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px;
   z-index: 5;
   animation: rwb-pop 0.12s ease-out;
@@ -704,13 +708,15 @@
     position: static;
   }
 
+  /* Above the bottom toolbar, so an open menu is not covered by it. */
   .rwb-top-left {
     position: absolute;
     top: 12px;
     left: 12px;
-    z-index: 3;
+    z-index: 4;
   }
 
+  /* Scrolls sideways when the tools do not fit, and only sideways. */
   .rwb-toolbar {
     position: absolute;
     left: 8px;
@@ -718,7 +724,16 @@
     bottom: calc(8px + env(safe-area-inset-bottom));
     max-width: none;
     overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
     z-index: 3;
+  }
+
+  /* The toolbar clips its tooltips here, and they hung below the buttons, which made it scroll
+     vertically too. */
+  .rwb-toolbar .rwb-tip {
+    display: none;
   }
 
   .rwb-key-hint {
